@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BPT Secret Santa – All‑in‑One (Fixed)</title>
+<title>BPT Secret Santa – All‑in‑One (Guaranteed Draw)</title>
 <style>
   :root { --bg:#0b1020; --panel:#121a33; --text:#e6e9f2; --muted:#98a2b3; --accent:#7c9cff; --card:#0f152b; --err:#ef4444; --ok:#22c55e; }
   *{box-sizing:border-box}
@@ -114,7 +114,6 @@ document.querySelectorAll('.tab').forEach(t=>{
 function $(s){return document.querySelector(s)}
 function setMsg(text, kind=''){ const el=$('#msg'); el.textContent=text; el.className='msg '+(kind||''); }
 function parseNames(raw){ return raw.split(/\n+/).map(s=>s.trim()).filter(Boolean) }
-function fy(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 function parseExclusions(raw){
   const set = new Set();
   if(!raw) return set;
@@ -128,29 +127,51 @@ function parseExclusions(raw){
   return set;
 }
 function bad(a,b,ex){ const k=[a,b].sort((x,y)=>x.localeCompare(y)).join('|'); return ex.has(k); }
-function derangement(names, ex, tries=8000){
-  if(!Array.isArray(names) || names.length<2) return {error:'Add at least two names.'};
-  // check duplicates
+
+// NEW: deterministic backtracking matcher (guaranteed if a solution exists)
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function findAssignment(names, ex){
+  const n = names.length;
+  const givers = shuffle(names); // randomize order for fairness
+  const assigned = new Set();
+  const recv = new Array(n).fill(null);
+
+  function tryAssign(i){
+    if(i===n) return true;
+    const giver = givers[i];
+    // build candidate list
+    let candidates = names.filter(r => r!==giver && !bad(giver,r,ex) && !assigned.has(r));
+    candidates = shuffle(candidates);
+    for(const cand of candidates){
+      // avoid two-cycles when possible
+      const j = givers.indexOf(cand);
+      if(j !== -1 && recv[j] === giver && n > 2) continue;
+
+      recv[i] = cand;
+      assigned.add(cand);
+      if(tryAssign(i+1)) return true;
+      assigned.delete(cand);
+      recv[i] = null;
+    }
+    return false;
+  }
+
+  if(!tryAssign(0)){
+    return null;
+  }
+  // map back to original names order
+  const mapping = new Map(givers.map((g,idx)=>[g, recv[idx]]));
+  return names.map(g => ({from:g, to:mapping.get(g)}));
+}
+
+function validateNames(names){
+  if(names.length < 2) return 'Add at least two names.';
   const counts = names.reduce((m,n)=>{ m[n]=(m[n]||0)+1; return m; },{});
   const dups = Object.entries(counts).filter(([,c])=>c>1).map(([n])=>n);
-  if(dups.length) return {error:'Duplicate names found: '+dups.join(', ')};
-  for(let t=0;t<tries;t++){
-    const rec = fy(names);
-    let ok=true;
-    for(let i=0;i<names.length;i++){ if(names[i]===rec[i] || bad(names[i],rec[i],ex)){ ok=false; break; } }
-    if(!ok) continue;
-    // avoid 2-cycles correctly: if names[i]->rec[i]=B, find index j where names[j]=B, ensure rec[j] != names[i]
-    let two=false;
-    for(let i=0;i<names.length;i++){
-      const b = rec[i];
-      const j = names.indexOf(b);
-      if(j !== -1 && rec[j] === names[i]){ two = true; break; }
-    }
-    if(two && names.length>2) continue;
-    return names.map((g,i)=>({from:g,to:rec[i]}));
-  }
-  return {error:'Could not find a valid shuffle with those exclusions. Try fewer exclusions or shuffle again.'};
+  if(dups.length) return 'Duplicate names found: '+dups.join(', ');
+  return '';
 }
+
 function b64(obj){ const j = JSON.stringify(obj); return btoa(j).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function ub64(s){ try{ return JSON.parse(atob(s.replace(/-/g,'+').replace(/_/g,'/'))); }catch(e){ return null; } }
 function urlBase(){ return location.origin + location.pathname; }
@@ -180,19 +201,17 @@ function renderLinks(pairs, names){
 }
 
 function generate(){
-  try{
-    const names = parseNames($('#names').value||'');
-    const ex = parseExclusions($('#exclusions').value||'');
-    const pairs = derangement(names, ex);
-    if(pairs && !pairs.error){
-      setMsg('Pairs generated. ✅','ok');
-      renderLinks(pairs, names);
-    }else{
-      setMsg(pairs && pairs.error ? pairs.error : 'Could not generate pairs.','err');
-    }
-  }catch(e){
-    setMsg('Unexpected error: '+(e.message||e),'err');
-    console.error(e);
+  const names = parseNames($('#names').value||'');
+  const ex = parseExclusions($('#exclusions').value||'');
+  const err = validateNames(names);
+  if(err){ setMsg(err,'err'); return; }
+
+  const pairs = findAssignment(names, ex);
+  if(pairs){
+    setMsg('Pairs generated. ✅','ok');
+    renderLinks(pairs, names);
+  }else{
+    setMsg('No valid draw exists with those exclusions. Remove or change some exclusions and try again.','err');
   }
 }
 $('#generate').addEventListener('click', generate);
