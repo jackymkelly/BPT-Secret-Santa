@@ -39,20 +39,21 @@
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="brand">BPT</div>
-      <h1>Secret Santa – All‑in‑One</h1>
-      <div class="tabs">
-        <div class="tab active" data-tab="org">Organizer</div>
-        <div class="tab" data-tab="player">Player</div>
-      </div>
+<div class="wrap">
+<div class="card">
+<div class="brand">BPT</div>
+<h1>Secret Santa – All‑in‑One</h1>
+<!-- Tabs -->
+<div class="tabs">
+<div class="tab active" data-tab="org">Organizer</div>
+<div class="tab" data-tab="player">Player</div>
+</div>
 
-      <!-- Organizer -->
-      <section id="org" class="section active">
-        <p class="sub">Paste names (one per line). Add optional exclusions (<code>Name1,Name2</code> per line). Generate unique links each player can open to spin.</p>
-        <label><strong>Names</strong></label>
-        <textarea id="names" placeholder="Ana
+<!-- Organizer -->
+<section id="org" class="section active">
+<p class="sub">Paste names (one per line). Add optional exclusions (<code>Name1,Name2</code> per line). Generate unique links each player can open to spin.</p>
+<label><strong>Names</strong></label>
+<textarea id="names" placeholder="Ana
 Diego
 Maya
 Ravi
@@ -60,47 +61,39 @@ Luna
 Kai
 Noah
 Iris"></textarea>
-
-        <label><strong>Exclusions (optional)</strong> <span class="small">Pairs like <code>Ana,Kai</code> (one per line). They won’t be matched to each other.</span></label>
-        <textarea id="exclusions" placeholder="Ana,Kai
+<label><strong>Exclusions (optional)</strong> <span class="small">Pairs like <code>Ana,Kai</code> (one per line). They won’t be matched to each other.</span></label>
+<textarea id="exclusions" placeholder="Ana,Kai
 Maya,Ravi"></textarea>
+<label><strong>Budget / Notes (optional)</strong></label>
+<input type="text" id="budget" placeholder="e.g., Budget $25–$35, exchange on Dec 20 at 7pm">
+<div class="btns">
+<button id="generate">🎁 Generate Links</button>
+<button id="shuffle" class="ghost">🔀 Shuffle</button>
+<button id="copyAll" class="ghost">📋 Copy all links</button>
+</div>
+<div id="results" class="grid" style="margin-top:14px"></div>
+<p class="small">This single file can be hosted anywhere. Each link looks like: <code>?t=...</code> and opens the Player tab automatically.</p>
+</section>
 
-        <label><strong>Budget / Notes (optional)</strong></label>
-        <input type="text" id="budget" placeholder="e.g., Budget $25–$35, exchange on Dec 20 at 7pm">
-
-        <div class="btns">
-          <button id="generate">🎁 Generate Links</button>
-          <button id="shuffle" class="ghost">🔀 Shuffle</button>
-          <button id="copyAll" class="ghost">📋 Copy all links</button>
-        </div>
-
-        <div id="results" class="grid" style="margin-top:14px"></div>
-
-        <p class="small">This single file can be hosted anywhere. Each link looks like: <code>?t=...</code> and opens the Player tab automatically.</p>
-      </section>
-
-      <!-- Player -->
-      <section id="player" class="section">
-        <p class="sub">Tap <strong>Spin</strong> to reveal who you're buying a gift for. <em>Keep it Secret</em> 😊</p>
-        <div class="row" style="justify-content:space-between">
-          <div class="nameplate">You are: <strong id="giver">—</strong></div>
-          <div class="nameplate">Room: <strong id="room">—</strong></div>
-        </div>
-
-        <div class="wheel-wrap">
-          <div class="pointer"></div>
-          <div id="wheel" class="wheel"></div>
-        </div>
-
-        <div class="row" style="justify-content:center;margin-top:8px">
-          <button id="spinBtn">🎡 Spin</button>
-          <div id="result" class="nameplate hidden"></div>
-        </div>
-
-        <p id="budgetNote" class="muted" style="margin-top:8px"></p>
-      </section>
-    </div>
-  </div>
+<!-- Player -->
+<section id="player" class="section">
+<p class="sub">Tap <strong>Spin</strong> to reveal who you're buying a gift for. <em>Keep it Secret</em> 😊</p>
+<div class="row" style="justify-content:space-between">
+<div class="nameplate">You are: <strong id="giver">—</strong></div>
+<div class="nameplate">Room: <strong id="room">—</strong></div>
+</div>
+<div class="wheel-wrap">
+<div class="pointer"></div>
+<div id="wheel" class="wheel"></div>
+</div>
+<div class="row" style="justify-content:center;margin-top:8px">
+<button id="spinBtn">🎡 Spin</button>
+<div id="result" class="nameplate hidden"></div>
+</div>
+<p id="budgetNote" class="muted" style="margin-top:8px"></p>
+</section>
+</div>
+</div>
 
 <script>
 // Tabs
@@ -116,11 +109,11 @@ document.querySelectorAll('.tab').forEach(t=>{
 
 // Helpers
 function $(s){return document.querySelector(s)}
-function parseNames(raw){ return raw.split(/\\n+/).map(s=>s.trim()).filter(Boolean) }
+function parseNames(raw){ return raw.split(/\n+/).map(s=>s.trim()).filter(Boolean) }
 function fy(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 function parseExclusions(raw){
   const set = new Set();
-  raw.split(/\\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
+  raw.split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
     const [a,b] = line.split(',').map(x=>x&&x.trim()).filter(Boolean);
     if(a && b){
       const key = [a,b].sort((x,y)=>x.localeCompare(y)).join('|');
@@ -146,7 +139,7 @@ function derangement(names, ex, tries=8000){
   }
   return {error:'Could not find a valid shuffle with those exclusions. Try fewer exclusions or shuffle again.'};
 }
-function b64(obj){ const j = JSON.stringify(obj); return btoa(j).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''); }
+function b64(obj){ const j = JSON.stringify(obj); return btoa(j).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function ub64(s){ try{ return JSON.parse(atob(s.replace(/-/g,'+').replace(/_/g,'/'))); }catch(e){ return null; } }
 function urlBase(){ return location.origin + location.pathname; }
 
@@ -169,14 +162,10 @@ function renderLinks(pairs, names){
     box.appendChild(item);
     links.push(href);
   });
-  // copy all
   $('#copyAll').onclick = ()=>{
-    navigator.clipboard.writeText(links.join('\\n')).then(()=>{
-      alert('All links copied!');
-    }).catch(()=> alert('Copy failed.'));
+    navigator.clipboard.writeText(links.join('\n')).then(()=>alert('All links copied!')).catch(()=>alert('Copy failed.'));
   };
 }
-
 function generate(){
   const names = parseNames($('#names').value);
   const ex = parseExclusions($('#exclusions').value);
@@ -239,13 +228,13 @@ function initPlayerFromURL(){
   };
 }
 
-// Auto-open Player if hash is #player or t param present
+// Auto-switch to player tab
 window.addEventListener('load', ()=>{
   const t = new URLSearchParams(location.search).get('t');
   if(location.hash === '#player' || t){
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    document.querySelector('.tab[data-tab=\"player\"]').classList.add('active');
+    document.querySelector('.tab[data-tab="player"]').classList.add('active');
     document.getElementById('player').classList.add('active');
     initPlayerFromURL();
   }
