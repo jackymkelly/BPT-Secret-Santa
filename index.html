@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BPT Secret Santa – All‑in‑One</title>
+<title>BPT Secret Santa – All‑in‑One (Fixed)</title>
 <style>
-  :root { --bg:#0b1020; --panel:#121a33; --text:#e6e9f2; --muted:#98a2b3; --accent:#7c9cff; --card:#0f152b; }
+  :root { --bg:#0b1020; --panel:#121a33; --text:#e6e9f2; --muted:#98a2b3; --accent:#7c9cff; --card:#0f152b; --err:#ef4444; --ok:#22c55e; }
   *{box-sizing:border-box}
   body{margin:0;background:radial-gradient(1200px 800px at 20% -20%, #1b244a 0%, var(--bg) 45%);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial}
   .wrap{max-width:980px;margin:32px auto;padding:20px}
@@ -36,6 +36,8 @@
   .tab.active{background:linear-gradient(135deg,#7c9cff,#a855f7);}
   .section{display:none}
   .section.active{display:block}
+  .msg{margin-top:10px; font-size:14px;}
+  .msg.err{color:var(--err);} .msg.ok{color:var(--ok);}
 </style>
 </head>
 <body>
@@ -71,6 +73,7 @@ Maya,Ravi"></textarea>
 <button id="shuffle" class="ghost">🔀 Shuffle</button>
 <button id="copyAll" class="ghost">📋 Copy all links</button>
 </div>
+<div id="msg" class="msg"></div>
 <div id="results" class="grid" style="margin-top:14px"></div>
 <p class="small">This single file can be hosted anywhere. Each link looks like: <code>?t=...</code> and opens the Player tab automatically.</p>
 </section>
@@ -109,12 +112,14 @@ document.querySelectorAll('.tab').forEach(t=>{
 
 // Helpers
 function $(s){return document.querySelector(s)}
+function setMsg(text, kind=''){ const el=$('#msg'); el.textContent=text; el.className='msg '+(kind||''); }
 function parseNames(raw){ return raw.split(/\n+/).map(s=>s.trim()).filter(Boolean) }
 function fy(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 function parseExclusions(raw){
   const set = new Set();
+  if(!raw) return set;
   raw.split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
-    const [a,b] = line.split(',').map(x=>x&&x.trim()).filter(Boolean);
+    const [a,b] = (line.split(',')||[]).map(x=>x&&x.trim()).filter(Boolean);
     if(a && b){
       const key = [a,b].sort((x,y)=>x.localeCompare(y)).join('|');
       set.add(key);
@@ -124,16 +129,23 @@ function parseExclusions(raw){
 }
 function bad(a,b,ex){ const k=[a,b].sort((x,y)=>x.localeCompare(y)).join('|'); return ex.has(k); }
 function derangement(names, ex, tries=8000){
-  if(names.length<2) return null;
-  const counts = names.reduce((m,n)=>(m[n]=(m[n]||0)+1,m),{});
-  if(Object.values(counts).some(c=>c>1)) return {error:'Duplicate names found. Make each name unique.'};
+  if(!Array.isArray(names) || names.length<2) return {error:'Add at least two names.'};
+  // check duplicates
+  const counts = names.reduce((m,n)=>{ m[n]=(m[n]||0)+1; return m; },{});
+  const dups = Object.entries(counts).filter(([,c])=>c>1).map(([n])=>n);
+  if(dups.length) return {error:'Duplicate names found: '+dups.join(', ')};
   for(let t=0;t<tries;t++){
     const rec = fy(names);
     let ok=true;
     for(let i=0;i<names.length;i++){ if(names[i]===rec[i] || bad(names[i],rec[i],ex)){ ok=false; break; } }
     if(!ok) continue;
+    // avoid 2-cycles correctly: if names[i]->rec[i]=B, find index j where names[j]=B, ensure rec[j] != names[i]
     let two=false;
-    for(let i=0;i<names.length;i++){ const j=rec.indexOf(names[i]); if(j!==-1 && rec[j]===names[i]){ two=true; break; } }
+    for(let i=0;i<names.length;i++){
+      const b = rec[i];
+      const j = names.indexOf(b);
+      if(j !== -1 && rec[j] === names[i]){ two = true; break; }
+    }
     if(two && names.length>2) continue;
     return names.map((g,i)=>({from:g,to:rec[i]}));
   }
@@ -163,15 +175,25 @@ function renderLinks(pairs, names){
     links.push(href);
   });
   $('#copyAll').onclick = ()=>{
-    navigator.clipboard.writeText(links.join('\n')).then(()=>alert('All links copied!')).catch(()=>alert('Copy failed.'));
+    navigator.clipboard.writeText(links.join('\n')).then(()=>setMsg('All links copied!','ok')).catch(()=>setMsg('Copy failed. You can select & copy manually.','err'));
   };
 }
+
 function generate(){
-  const names = parseNames($('#names').value);
-  const ex = parseExclusions($('#exclusions').value);
-  const pairs = derangement(names, ex);
-  if(!pairs || pairs.error){ alert(pairs ? pairs.error : 'Add at least two names.'); return; }
-  renderLinks(pairs, names);
+  try{
+    const names = parseNames($('#names').value||'');
+    const ex = parseExclusions($('#exclusions').value||'');
+    const pairs = derangement(names, ex);
+    if(pairs && !pairs.error){
+      setMsg('Pairs generated. ✅','ok');
+      renderLinks(pairs, names);
+    }else{
+      setMsg(pairs && pairs.error ? pairs.error : 'Could not generate pairs.','err');
+    }
+  }catch(e){
+    setMsg('Unexpected error: '+(e.message||e),'err');
+    console.error(e);
+  }
 }
 $('#generate').addEventListener('click', generate);
 $('#shuffle').addEventListener('click', generate);
