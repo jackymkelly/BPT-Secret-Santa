@@ -1,260 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Secret Santa – Simple Draw</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --panel: #121a33;
-      --muted: #98a2b3;
-      --text: #e6e9f2;
-      --accent: #7c9cff;
-      --ok: #22c55e;
-      --warn: #f59e0b;
-      --err: #ef4444;
-      --card: #0f152b;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 20% -20%, #1b244a 0%, var(--bg) 45%);
-      color: var(--text);
-    }
-    .wrap { max-width: 980px; margin: 40px auto; padding: 24px; }
-    .header { display:flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-    .logo { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #7c9cff, #a855f7); display:grid; place-items:center; box-shadow: 0 10px 30px rgba(124,156,255,.25); }
-    .logo span { font-weight: 800; color: white; }
-    h1 { font-size: clamp(22px, 3vw, 28px); margin: 0; letter-spacing: .3px; }
-    p.sub { color: var(--muted); margin: 6px 0 0 0; }
-
-    .panel { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); border-radius: 16px; padding: 18px; box-shadow: 0 10px 30px rgba(2,8,23,.35) inset, 0 10px 30px rgba(2,8,23,.25);
-    }
-
-    textarea { width: 100%; min-height: 180px; resize: vertical; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: var(--panel); color: var(--text); padding: 12px 14px; font-size: 15px; line-height: 1.5; }
-
-    .row { display:grid; grid-template-columns: 1fr; gap: 12px; }
-    @media (min-width: 800px){ .row { grid-template-columns: 1fr 1fr; } }
-
-    .hint { color: var(--muted); font-size: 13px; margin-top: 8px; }
-
-    .btns { display:flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-    button, .ghost {
-      appearance: none; border: none; cursor: pointer; border-radius: 12px; padding: 10px 14px; font-weight: 600; letter-spacing: .2px; transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
-    }
-    .primary { background: linear-gradient(135deg, #7c9cff, #a855f7); color: white; box-shadow: 0 10px 18px rgba(124,156,255,.32); }
-    .primary:hover { transform: translateY(-1px); }
-    .ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid rgba(255,255,255,.12); text-decoration: none; display:inline-flex; align-items:center; gap:8px; }
-
-    .msg { margin-top: 10px; font-size: 14px; }
-    .msg.ok { color: var(--ok); }
-    .msg.warn { color: var(--warn); }
-    .msg.err { color: var(--err); }
-
-    .grid { margin-top: 18px; display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-    .card { background: var(--card); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 12px 12px; }
-    .pair { display:flex; align-items:center; justify-content: space-between; gap: 8px; }
-    .name { font-weight: 700; }
-    .arrow { opacity: .6; }
-    .recipient { font-weight: 700; }
-
-    .tools { display:flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 0 0; }
-
-    .footer { color: var(--muted); font-size: 12px; margin-top: 18px; }
-
-    /* Print slips */
-    @media print {
-      body { background: white; color: black; }
-      .no-print { display: none !important; }
-      .slip { page-break-inside: avoid; border: 1px dashed #999; border-radius: 10px; padding: 12px; margin: 8px 0; }
-      .slip h3 { margin: 0 0 6px 0; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BPT Secret Santa – All‑in‑One</title>
+<style>
+  :root { --bg:#0b1020; --panel:#121a33; --text:#e6e9f2; --muted:#98a2b3; --accent:#7c9cff; --card:#0f152b; }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 800px at 20% -20%, #1b244a 0%, var(--bg) 45%);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial}
+  .wrap{max-width:980px;margin:32px auto;padding:20px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px}
+  h1{font-size:clamp(22px,3vw,28px);margin:0 0 6px 0}
+  .brand{opacity:.9;font-weight:800;letter-spacing:.3px;margin-bottom:4px}
+  .sub{color:var(--muted);margin:0 0 14px 0}
+  textarea{width:100%;min-height:160px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:var(--panel);color:var(--text);padding:12px 14px}
+  input[type=text]{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:var(--panel);color:var(--text);padding:8px 10px}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  button{appearance:none;border:none;border-radius:12px;background:linear-gradient(135deg,#7c9cff,#a855f7);color:white;font-weight:700;padding:10px 14px;cursor:pointer;box-shadow:0 10px 18px rgba(124,156,255,.32);}
+  .ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--text)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:14px}
+  .item{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px}
+  .small{color:var(--muted);font-size:13px}
+  .link{word-break:break-all}
+  .nameplate{background:#0f152b;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 12px}
+  .wheel-wrap{display:grid;place-items:center;margin:10px auto 20px auto}
+  .wheel{position:relative;width:min(84vw,440px);height:min(84vw,440px);border-radius:50%;border:10px solid rgba(255,255,255,.1);background:#0f152b;overflow:hidden;box-shadow:0 8px 30px rgba(2,8,23,.4) inset, 0 12px 24px rgba(0,0,0,.25)}
+  .slice{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform-origin:50% 50%;}
+  .label{position:absolute;left:50%;top:50%;transform-origin:0 0;white-space:nowrap;font-weight:700}
+  .pointer{width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:26px solid var(--accent);margin:10px auto 0 auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .muted{color:var(--muted)}
+  .hidden{display:none}
+  .tabs{display:flex;gap:8px;margin-bottom:12px}
+  .tab{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:12px;padding:8px 12px;cursor:pointer}
+  .tab.active{background:linear-gradient(135deg,#7c9cff,#a855f7);}
+  .section{display:none}
+  .section.active{display:block}
+</style>
 </head>
 <body>
   <div class="wrap">
-    <div class="header">
-      <div class="logo"><span>🎁</span></div>
-      <div>
-        <h1>Secret Santa – Simple Draw</h1>
-        <p class="sub">Paste the list of participants (one per line). Click <strong>Draw</strong> to assign everyone a recipient with no self-matches.</p>
+    <div class="card">
+      <div class="brand">BPT</div>
+      <h1>Secret Santa – All‑in‑One</h1>
+      <div class="tabs">
+        <div class="tab active" data-tab="org">Organizer</div>
+        <div class="tab" data-tab="player">Player</div>
       </div>
-    </div>
 
-    <div class="panel">
-      <div class="row">
-        <div>
-          <label for="names"><strong>Names (one per line)</strong></label>
-          <textarea id="names" placeholder="Ana\nDiego\nMaya\nRavi\nLuna\nKai"></textarea>
-          <div class="hint">Tip: Make sure each name is unique. We'll ignore blank lines automatically.</div>
+      <!-- Organizer -->
+      <section id="org" class="section active">
+        <p class="sub">Paste names (one per line). Add optional exclusions (<code>Name1,Name2</code> per line). Generate unique links each player can open to spin.</p>
+        <label><strong>Names</strong></label>
+        <textarea id="names" placeholder="Ana
+Diego
+Maya
+Ravi
+Luna
+Kai
+Noah
+Iris"></textarea>
+
+        <label><strong>Exclusions (optional)</strong> <span class="small">Pairs like <code>Ana,Kai</code> (one per line). They won’t be matched to each other.</span></label>
+        <textarea id="exclusions" placeholder="Ana,Kai
+Maya,Ravi"></textarea>
+
+        <label><strong>Budget / Notes (optional)</strong></label>
+        <input type="text" id="budget" placeholder="e.g., Budget $25–$35, exchange on Dec 20 at 7pm">
+
+        <div class="btns">
+          <button id="generate">🎁 Generate Links</button>
+          <button id="shuffle" class="ghost">🔀 Shuffle</button>
+          <button id="copyAll" class="ghost">📋 Copy all links</button>
         </div>
-        <div>
-          <label for="exclusions"><strong>Optional: Exclusions</strong> <span class="hint">(avoid pairing these together)</span></label>
-          <textarea id="exclusions" placeholder="Ana,Kai\nMaya,Ravi"></textarea>
-          <div class="hint">Use <code>Name1,Name2</code> per line to avoid pairing those two in either direction (e.g., couples/roommates).</div>
+
+        <div id="results" class="grid" style="margin-top:14px"></div>
+
+        <p class="small">This single file can be hosted anywhere. Each link looks like: <code>?t=...</code> and opens the Player tab automatically.</p>
+      </section>
+
+      <!-- Player -->
+      <section id="player" class="section">
+        <p class="sub">Tap <strong>Spin</strong> to reveal who you're buying a gift for. <em>Keep it Secret</em> 😊</p>
+        <div class="row" style="justify-content:space-between">
+          <div class="nameplate">You are: <strong id="giver">—</strong></div>
+          <div class="nameplate">Room: <strong id="room">—</strong></div>
         </div>
-      </div>
-      
-      <div class="btns no-print">
-        <button class="primary" id="drawBtn">🎲 Draw</button>
-        <button class="ghost" id="shuffleBtn">🔀 Shuffle again</button>
-        <button class="ghost" id="copyBtn">📋 Copy results</button>
-        <button class="ghost" id="downloadBtn">⬇️ Download CSV</button>
-        <button class="ghost" id="printBtn">🖨️ Print slips</button>
-      </div>
-      <div id="msg" class="msg"></div>
 
-      <div id="results" class="grid" aria-live="polite"></div>
+        <div class="wheel-wrap">
+          <div class="pointer"></div>
+          <div id="wheel" class="wheel"></div>
+        </div>
 
-      <div id="slips" class="no-print" style="display:none; margin-top:14px;"></div>
+        <div class="row" style="justify-content:center;margin-top:8px">
+          <button id="spinBtn">🎡 Spin</button>
+          <div id="result" class="nameplate hidden"></div>
+        </div>
 
-      <div class="footer no-print">Made with ❤️ — all in your browser. No data leaves this page.</div>
+        <p id="budgetNote" class="muted" style="margin-top:8px"></p>
+      </section>
     </div>
   </div>
 
-  <script>
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => Array.from(document.querySelectorAll(sel));
+<script>
+// Tabs
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='player') initPlayerFromURL();
+  });
+});
 
-    function parseNames(raw){
-      return raw.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-    }
-
-    function parseExclusions(raw){
-      const pairs = raw.split(/\n+/).map(s=>s.trim()).filter(Boolean)
-        .map(line => line.split(',').map(s=>s.trim()))
-        .filter(arr => arr.length === 2 && arr[0] && arr[1]);
-      // normalize as a Set of "A|B" with alphabetical key for undirected check
-      const set = new Set();
-      for(const [a,b] of pairs){
-        const key = [a,b].sort((x,y)=>x.localeCompare(y)).join('|');
-        set.add(key);
-      }
-      return set;
-    }
-
-    function fisherYates(arr){
-      const a = arr.slice();
-      for(let i=a.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i],a[j]] = [a[j],a[i]];
-      }
-      return a;
-    }
-
-    function isExcluded(a,b,exSet){
+// Helpers
+function $(s){return document.querySelector(s)}
+function parseNames(raw){ return raw.split(/\\n+/).map(s=>s.trim()).filter(Boolean) }
+function fy(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function parseExclusions(raw){
+  const set = new Set();
+  raw.split(/\\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
+    const [a,b] = line.split(',').map(x=>x&&x.trim()).filter(Boolean);
+    if(a && b){
       const key = [a,b].sort((x,y)=>x.localeCompare(y)).join('|');
-      return exSet.has(key);
+      set.add(key);
     }
+  });
+  return set;
+}
+function bad(a,b,ex){ const k=[a,b].sort((x,y)=>x.localeCompare(y)).join('|'); return ex.has(k); }
+function derangement(names, ex, tries=8000){
+  if(names.length<2) return null;
+  const counts = names.reduce((m,n)=>(m[n]=(m[n]||0)+1,m),{});
+  if(Object.values(counts).some(c=>c>1)) return {error:'Duplicate names found. Make each name unique.'};
+  for(let t=0;t<tries;t++){
+    const rec = fy(names);
+    let ok=true;
+    for(let i=0;i<names.length;i++){ if(names[i]===rec[i] || bad(names[i],rec[i],ex)){ ok=false; break; } }
+    if(!ok) continue;
+    let two=false;
+    for(let i=0;i<names.length;i++){ const j=rec.indexOf(names[i]); if(j!==-1 && rec[j]===names[i]){ two=true; break; } }
+    if(two && names.length>2) continue;
+    return names.map((g,i)=>({from:g,to:rec[i]}));
+  }
+  return {error:'Could not find a valid shuffle with those exclusions. Try fewer exclusions or shuffle again.'};
+}
+function b64(obj){ const j = JSON.stringify(obj); return btoa(j).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''); }
+function ub64(s){ try{ return JSON.parse(atob(s.replace(/-/g,'+').replace(/_/g,'/'))); }catch(e){ return null; } }
+function urlBase(){ return location.origin + location.pathname; }
 
-    function derangement(names, exSet, maxTries=5000){
-      if(names.length < 2) return null;
-      // Ensure unique names to avoid confusion
-      const counts = names.reduce((m,n)=> (m[n]=(m[n]||0)+1, m), {});
-      const dups = Object.entries(counts).filter(([,c])=>c>1).map(([n])=>n);
-      if(dups.length){
-        return { error: `Duplicate names found: ${dups.join(', ')}. Please make each name unique.` };
-      }
+// Organizer actions
+function renderLinks(pairs, names){
+  const budget = $('#budget').value.trim();
+  const room = Math.random().toString(36).slice(2,8).toUpperCase();
+  const box = $('#results');
+  box.innerHTML='';
+  const links = [];
+  pairs.forEach(p=>{
+    const ticket = {giver:p.from, recipient:p.to, room, names, budget};
+    const t = b64(ticket);
+    const href = urlBase() + '?t=' + t + '#player';
+    const item = document.createElement('div');
+    item.className='item';
+    item.innerHTML = `<div><strong>${p.from}</strong> → (hidden)</div>
+      <div class="small">Send this link to ${p.from}:</div>
+      <div class="link"><a href="${href}" target="_blank" rel="noopener">${href}</a></div>`;
+    box.appendChild(item);
+    links.push(href);
+  });
+  // copy all
+  $('#copyAll').onclick = ()=>{
+    navigator.clipboard.writeText(links.join('\\n')).then(()=>{
+      alert('All links copied!');
+    }).catch(()=> alert('Copy failed.'));
+  };
+}
 
-      const givers = names.slice();
-      for(let t=0; t<maxTries; t++){
-        const receivers = fisherYates(names);
-        let ok = true;
-        for(let i=0;i<givers.length;i++){
-          const a = givers[i];
-          const b = receivers[i];
-          if(a === b || isExcluded(a,b,exSet)) { ok = false; break; }
-        }
-        if(!ok) continue;
-        // also avoid reciprocal 2-cycles if possible
-        let hasTwoCycle = false;
-        for(let i=0;i<givers.length;i++){
-          const a = givers[i];
-          const b = receivers[i];
-          const j = givers.indexOf(b);
-          if(j !== -1 && receivers[j] === a){ hasTwoCycle = true; break; }
-        }
-        if(hasTwoCycle && givers.length > 2) continue; // try again to avoid obvious swaps
-        return givers.map((g,i)=>({ from: g, to: receivers[i] }));
-      }
-      return { error: "Couldn't find a valid draw with those exclusions. Try removing some exclusions or shuffling again." };
-    }
+function generate(){
+  const names = parseNames($('#names').value);
+  const ex = parseExclusions($('#exclusions').value);
+  const pairs = derangement(names, ex);
+  if(!pairs || pairs.error){ alert(pairs ? pairs.error : 'Add at least two names.'); return; }
+  renderLinks(pairs, names);
+}
+$('#generate').addEventListener('click', generate);
+$('#shuffle').addEventListener('click', generate);
 
-    function render(results){
-      const box = $('#results');
-      box.innerHTML = '';
-      if(!Array.isArray(results)) return;
-      results.forEach(({from,to})=>{
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<div class="pair"><div class="name">${escapeHtml(from)}</div><div class="arrow">→</div><div class="recipient">${escapeHtml(to)}</div></div>`;
-        box.appendChild(card);
-      });
-    }
+// Player view
+function initPlayerFromURL(){
+  const params = new URLSearchParams(location.search);
+  const t = params.get('t');
+  const ticket = t ? ub64(t) : null;
+  const wheel = $('#wheel');
+  wheel.style.transition='none'; wheel.style.transform='rotate(0deg)';
+  $('#result').classList.add('hidden');
+  if(!ticket){
+    $('#giver').textContent='—'; $('#room').textContent='—'; $('#budgetNote').textContent='';
+    return;
+  }
+  const names = Array.isArray(ticket.names) ? ticket.names : [];
+  const giver = ticket.giver;
+  const recipient = ticket.recipient;
+  const room = ticket.room || '—';
+  const budget = ticket.budget || '';
+  $('#giver').textContent = giver || '—';
+  $('#room').textContent = room;
+  $('#budgetNote').textContent = budget ? ('Budget/Notes: ' + budget) : '';
+  const entries = names.length ? names : [recipient];
+  wheel.innerHTML = '';
+  const N = entries.length;
+  for(let i=0;i<N;i++){
+    const angle = 360/N;
+    const rot = i*angle;
+    const slice = document.createElement('div');
+    slice.className = 'slice';
+    slice.style.transform = `rotate(${rot}deg)`;
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.style.transform = `rotate(${angle/2}deg) translate(35%) rotate(90deg)`;
+    label.textContent = entries[i];
+    slice.appendChild(label);
+    wheel.appendChild(slice);
+  }
+  let spun=false;
+  $('#spinBtn').onclick = ()=>{
+    if(spun) return;
+    spun=true;
+    const idx = Math.max(0, entries.indexOf(recipient));
+    const anglePer = 360/entries.length;
+    const stopAngle = 360*6 + (anglePer*idx) + anglePer/2;
+    wheel.style.transition = 'transform 4s cubic-bezier(.12,.6,0,1)';
+    wheel.style.transform = `rotate(-${stopAngle}deg)`;
+    setTimeout(()=>{
+      $('#result').classList.remove('hidden');
+      $('#result').innerHTML = `🎁 You are buying for: <strong>${recipient}</strong>`;
+    }, 4100);
+  };
+}
 
-    function renderSlips(results){
-      const box = $('#slips');
-      box.innerHTML = '';
-      results.forEach(({from,to})=>{
-        const div = document.createElement('div');
-        div.className = 'slip';
-        div.innerHTML = `<h3>🎁 Secret Santa</h3><p><strong>${escapeHtml(from)}</strong>, you are buying for:</p><p style="font-size:20px"><strong>${escapeHtml(to)}</strong></p>`;
-        box.appendChild(div);
-      });
-    }
-
-    function setMsg(text, kind=''){ const el=$('#msg'); el.textContent=text; el.className = `msg ${kind}`; }
-
-    function copyResults(results){
-      const text = results.map(r=>`${r.from} → ${r.to}`).join('\n');
-      navigator.clipboard.writeText(text).then(()=> setMsg('Copied to clipboard.', 'ok'))
-        .catch(()=> setMsg('Could not copy. You can select and copy manually.', 'warn'));
-    }
-
-    function downloadCSV(results){
-      const rows = [['From','To'], ...results.map(r=>[r.from,r.to])];
-      const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
-      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'secret-santa.csv'; a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function escapeHtml(s){
-      return s.replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[c]));
-    }
-
-    let lastResults = null;
-
-    function doDraw(shuffleOnly=false){
-      const names = parseNames($('#names').value);
-      const exSet = parseExclusions($('#exclusions').value);
-      if(names.length < 2){ setMsg('Add at least 2 names.', 'warn'); return; }
-      const res = derangement(names, exSet);
-      if(res && res.error){ setMsg(res.error, 'err'); return; }
-      if(!res){ setMsg('Not enough names to draw.', 'warn'); return; }
-      lastResults = res;
-      render(res);
-      setMsg(shuffleOnly ? 'Shuffled again!' : 'Done! No one got themselves. ✅', 'ok');
-      // prepare slips for printing
-      renderSlips(res);
-    }
-
-    $('#drawBtn').addEventListener('click', ()=> doDraw(false));
-    $('#shuffleBtn').addEventListener('click', ()=> doDraw(true));
-    $('#copyBtn').addEventListener('click', ()=> lastResults ? copyResults(lastResults) : setMsg('Nothing to copy yet. Do a draw first.', 'warn'));
-    $('#downloadBtn').addEventListener('click', ()=> lastResults ? downloadCSV(lastResults) : setMsg('Nothing to download yet. Do a draw first.', 'warn'));
-    $('#printBtn').addEventListener('click', ()=>{
-      if(!lastResults){ setMsg('Generate assignments first.', 'warn'); return; }
-      $('#slips').style.display = 'block';
-      window.print();
-      setTimeout(()=>{ $('#slips').style.display = 'none'; }, 500);
-    });
-
-    // Demo data for quick try
-    $('#names').value = ['Ana','Diego','Maya','Ravi','Luna','Kai'].join('\n');
-  </script>
+// Auto-open Player if hash is #player or t param present
+window.addEventListener('load', ()=>{
+  const t = new URLSearchParams(location.search).get('t');
+  if(location.hash === '#player' || t){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelector('.tab[data-tab=\"player\"]').classList.add('active');
+    document.getElementById('player').classList.add('active');
+    initPlayerFromURL();
+  }
+});
+</script>
 </body>
 </html>
